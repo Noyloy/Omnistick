@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Omnistick</string>
+
+    <string name="start">Start</string>
+    <string name="projects">Projects</string>
+    <string name="setup">Setup</string>
+    <string name="how_to">How To</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_session">Session</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_projects">Projects</string>
+    <string name="title_activity_setup">Setup</string>
+    <string name="title_activity_how_to">HowTo</string>
+</resources>

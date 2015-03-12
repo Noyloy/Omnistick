@@ -1,0 +1,33 @@
+<LinearLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:padding="50px"
+    android:orientation="vertical"
+    android:background="@android:color/darker_gray"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Button
+        android:id="@+id/startBtn"
+        android:layout_width="fill_parent"
+        android:layout_height="200px"
+        android:layout_weight="1"
+        android:text="@string/start"/>
+    <Button
+        android:id="@+id/projectsBtn"
+        android:layout_width="fill_parent"
+        android:layout_height="200px"
+        android:layout_weight="1"
+        android:text="@string/projects"/>
+    <Button
+        android:id="@+id/setupBtn"
+        android:layout_width="fill_parent"
+        android:layout_height="200px"
+        android:layout_weight="1"
+        android:text="@string/setup"/>
+    <Button
+        android:id="@+id/howToBtn"
+        android:layout_width="fill_parent"
+        android:layout_height="200px"
+        android:layout_weight="1"
+        android:text="@string/how_to"/>
+</LinearLayout>
