@@ -17,7 +17,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Session"
+            android:name=".SessionActivity"
             android:label="@string/title_activity_session"
             android:screenOrientation="portrait">
         </activity>
