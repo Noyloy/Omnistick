@@ -24,6 +24,13 @@ public class Session {
             public void run() {
                 // init media object
                 MediaPlayer sound = MediaPlayer.create(context, soundPath);
+                sound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        mp.release();
+                        mp = null;
+                    }
+                });
                 sound.setLooping(false);
                 try {
                     sound.prepare();
@@ -45,6 +52,13 @@ public class Session {
             public void run() {
                 // init media object
                 MediaPlayer sound = MediaPlayer.create(context, soundPath);
+                sound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        mp.release();
+                        mp = null;
+                    }
+                });
                 sound.setLooping(false);
                 try {
                     sound.prepare();
