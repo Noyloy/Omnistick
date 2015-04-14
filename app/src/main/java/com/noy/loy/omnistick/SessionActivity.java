@@ -18,10 +18,7 @@ import java.io.IOException;
 
 
 public class SessionActivity extends Activity implements SensorEventListener {
-    public final String A_KEY = "A";
-    public final String B_KEY = "B";
-    public final String C_KEY = "C";
-    public final String D_KEY = "D";
+
     private enum Direction{UP, DOWN}
     private SharedPreferences prefs;
 
@@ -148,16 +145,16 @@ public class SessionActivity extends Activity implements SensorEventListener {
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.a_button:
-                    soundToPlay = Uri.parse(prefs.getString(A_KEY,"android.resource://com.noy.loy.omnistick/raw/kick_02"));
+                    soundToPlay = Uri.parse(prefs.getString(Setup.A_KEY,"android.resource://com.noy.loy.omnistick/raw/kick_02"));
                     break;
                 case R.id.b_button:
-                    soundToPlay = Uri.parse(prefs.getString(B_KEY,"android.resource://com.noy.loy.omnistick/" + R.raw.kick_03));
+                    soundToPlay = Uri.parse(prefs.getString(Setup.B_KEY,"android.resource://com.noy.loy.omnistick/" + R.raw.kick_03));
                     break;
                 case R.id.c_button:
-                    soundToPlay = Uri.parse(prefs.getString(C_KEY,"android.resource://com.noy.loy.omnistick/" + R.raw.kick_04));
+                    soundToPlay = Uri.parse(prefs.getString(Setup.C_KEY,"android.resource://com.noy.loy.omnistick/" + R.raw.kick_04));
                     break;
                 case R.id.d_button:
-                    soundToPlay = Uri.parse(prefs.getString(D_KEY,"android.resource://com.noy.loy.omnistick/" + R.raw.kick_05));
+                    soundToPlay = Uri.parse(prefs.getString(Setup.D_KEY,"android.resource://com.noy.loy.omnistick/" + R.raw.kick_05));
                     break;
             }
 
