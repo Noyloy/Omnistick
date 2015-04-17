@@ -19,7 +19,8 @@ import java.io.IOException;
 
 public class SessionActivity extends Activity implements SensorEventListener {
 
-    private enum Direction{UP, DOWN}
+    private enum Direction {UP, DOWN}
+
     private SharedPreferences prefs;
 
     private SensorManager mSensorManager;
@@ -32,29 +33,37 @@ public class SessionActivity extends Activity implements SensorEventListener {
     private float[] history = new float[3];
     private Direction lastMovement = Direction.UP;
     private long lastUpdate;
+    private boolean isLefty = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_session);
+        // Get Preferences
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        // Lefty support
+        isLefty = prefs.getBoolean(Setup.LEFTY_KEY, false);
+        if (isLefty) {
+            setContentView(R.layout.activity_session_lefty);
+        } else {
+            setContentView(R.layout.activity_session);
+        }
+
 
         // Hide the status bar.
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
-        // Get Preferences
-        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-
         // init session
         session = new Session();
 
         // Get buttons
-        aBtn = (Button)findViewById(R.id.a_button);
-        bBtn = (Button)findViewById(R.id.b_button);
-        cBtn = (Button)findViewById(R.id.c_button);
-        dBtn = (Button)findViewById(R.id.d_button);
-        recBtn = (Button)findViewById(R.id.rec_button);
+        aBtn = (Button) findViewById(R.id.a_button);
+        bBtn = (Button) findViewById(R.id.b_button);
+        cBtn = (Button) findViewById(R.id.c_button);
+        dBtn = (Button) findViewById(R.id.d_button);
+        recBtn = (Button) findViewById(R.id.rec_button);
 
         // Set Listeners
         aBtn.setOnClickListener(new SoundButtonClickListener());
@@ -63,7 +72,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
         dBtn.setOnClickListener(new SoundButtonClickListener());
 
         // Create and register Accelerometer
-        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
 
@@ -76,6 +85,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
         super.onStart();
 
     }
+
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
@@ -85,6 +95,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
         super.onPause();
         mSensorManager.unregisterListener(this);
     }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
@@ -102,7 +113,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
         float yChange = history[1] - y;
         float zChange = history[2] - z;
 
-        Log.d("DEBUG", "x = " + x + "\txHistory = " + history[0] + "\txChange = " + xChange +"\tlast movement = "+lastMovement);
+        Log.d("DEBUG", "x = " + x + "\txHistory = " + history[0] + "\txChange = " + xChange + "\tlast movement = " + lastMovement);
         // assign to history values
         history[0] = x;
         history[1] = y;
@@ -111,22 +122,24 @@ public class SessionActivity extends Activity implements SensorEventListener {
 
         // get update time
         long actualTime = System.currentTimeMillis();
-            // calc direction
-            // Now Up
-            if (xChange < -11){
-                //if last time Down
-                if (lastMovement==Direction.DOWN && actualTime-lastUpdate>100){
-                    Log.d("DEBUG","playing, time diff = "+(actualTime-lastUpdate));
-                    session.playSound(getApplicationContext(),soundToPlay);
-                    lastUpdate= actualTime;
-                }
-                // Update movement
-                lastMovement = Direction.UP;
+
+        // calc direction
+        // Lefty support
+        // Now Up
+        if ((xChange < -11 && !isLefty) || (xChange > 11 && isLefty)) {
+            //if last time Down
+            if (lastMovement == Direction.DOWN && actualTime - lastUpdate > 100) {
+                Log.d("DEBUG", "playing, time diff = " + (actualTime - lastUpdate));
+                session.playSound(getApplicationContext(), soundToPlay);
+                lastUpdate = actualTime;
             }
-            // Now Down
-            else if (xChange > 1.3){
-                lastMovement = Direction.DOWN;
-            }
+            // Update movement
+            lastMovement = Direction.UP;
+        }
+        // Now Down
+        else if ((xChange > 1.3 && !isLefty) || (xChange < -1.3 && isLefty)) {
+            lastMovement = Direction.DOWN;
+        }
 
 /*
         float accelerationSquareRoot = (x * x + y * y + z * z)
@@ -143,18 +156,18 @@ public class SessionActivity extends Activity implements SensorEventListener {
     class SoundButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            switch(v.getId()){
+            switch (v.getId()) {
                 case R.id.a_button:
-                    soundToPlay = Uri.parse(prefs.getString(Setup.A_KEY,"android.resource://com.noy.loy.omnistick/raw/kick_02"));
+                    soundToPlay = Uri.parse(prefs.getString(Setup.A_KEY, "android.resource://com.noy.loy.omnistick/raw/kick_02"));
                     break;
                 case R.id.b_button:
-                    soundToPlay = Uri.parse(prefs.getString(Setup.B_KEY,"android.resource://com.noy.loy.omnistick/" + R.raw.kick_03));
+                    soundToPlay = Uri.parse(prefs.getString(Setup.B_KEY, "android.resource://com.noy.loy.omnistick/" + R.raw.kick_03));
                     break;
                 case R.id.c_button:
-                    soundToPlay = Uri.parse(prefs.getString(Setup.C_KEY,"android.resource://com.noy.loy.omnistick/" + R.raw.kick_04));
+                    soundToPlay = Uri.parse(prefs.getString(Setup.C_KEY, "android.resource://com.noy.loy.omnistick/" + R.raw.kick_04));
                     break;
                 case R.id.d_button:
-                    soundToPlay = Uri.parse(prefs.getString(Setup.D_KEY,"android.resource://com.noy.loy.omnistick/" + R.raw.kick_05));
+                    soundToPlay = Uri.parse(prefs.getString(Setup.D_KEY, "android.resource://com.noy.loy.omnistick/" + R.raw.kick_05));
                     break;
             }
 

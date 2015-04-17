@@ -9,6 +9,7 @@
     <string name="title_activity_session">Session</string>
     <string name="setSound">Set</string>
     <string name="clearSound">Clear</string>
+    <string name="left_orientation">Lefty</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_projects">Projects</string>
     <string name="title_activity_setup">Setup</string>

@@ -12,6 +12,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+
+import java.util.zip.CheckedInputStream;
 
 
 public class Setup extends Activity {
@@ -19,18 +23,29 @@ public class Setup extends Activity {
     public static final String B_KEY = "B";
     public static final String C_KEY = "C";
     public static final String D_KEY = "D";
+    public static final String LEFTY_KEY = "LEFTY";
 
     private SharedPreferences prefs;
 
     private Button aBtn, bBtn, cBtn, dBtn, aBtnClear, bBtnClear, cBtnClear, dBtnClear;
+    private CheckBox leftyCb;
+    private boolean isLefty = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_setup);
 
         // Init Preferences
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        // Lefty support
+        isLefty = prefs.getBoolean(LEFTY_KEY,false);
+        if (isLefty) {
+            setContentView(R.layout.activity_setup_lefty);
+        }
+        else{
+            setContentView(R.layout.activity_setup);
+        }
 
         // Get buttons
         aBtn = (Button)findViewById(R.id.a_button_set);
@@ -41,7 +56,8 @@ public class Setup extends Activity {
         bBtnClear = (Button)findViewById(R.id.b_button_clear);
         cBtnClear = (Button)findViewById(R.id.c_button_clear);
         dBtnClear = (Button)findViewById(R.id.d_button_clear);
-
+        // Get CheckBox
+        leftyCb = (CheckBox)findViewById(R.id.lefty_check_box);
 
         // Set Listeners
         aBtn.setOnClickListener(new SetSoundButtonClickListener());
@@ -52,6 +68,20 @@ public class Setup extends Activity {
         bBtnClear.setOnClickListener(new ClearSoundButtonClickListener());
         cBtnClear.setOnClickListener(new ClearSoundButtonClickListener());
         dBtnClear.setOnClickListener(new ClearSoundButtonClickListener());
+
+        leftyCb.setChecked(isLefty);
+        leftyCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // Prepare to save to prefs
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putBoolean(LEFTY_KEY,isChecked);
+                editor.commit();
+                Intent intent = getIntent();
+                finish();
+                startActivity(intent);
+            }
+        });
     }
 
     class SetSoundButtonClickListener implements View.OnClickListener {
