@@ -5,6 +5,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -13,7 +14,8 @@ import java.util.List;
 public class Session {
     private String name;
     private Long duration;
-    private List<Uri> soundLog;
+    private Long startMilisec;
+    private HashMap<Long,Uri> soundLog;
 
     public void Session(){ }
     /* play sound without logging it*/
@@ -74,8 +76,22 @@ public class Session {
         // register when the sound was played
         registerTime(soundPath, time);
     }
-    public void registerTime(Uri soundPath, Long milisecFromStart){ }
-    public void endSession(){ }
-    public void startSession(){ }
-    public boolean saveSession(String sessionName){ return false; }
+    /* register which sound was played and when */
+    public void registerTime(Uri soundPath, Long sysMilisec){
+        Long milisecFromStart = sysMilisec - startMilisec;
+        soundLog.put(milisecFromStart,soundPath);
+    }
+    /* set time of stop recording, set duration */
+    public void endSession(){
+        Long endMilisec = System.currentTimeMillis();
+        duration = endMilisec - startMilisec;
+    }
+    /* start recording, set time of start*/
+    public void startSession(){
+        startMilisec = System.currentTimeMillis();
+    }
+    public boolean saveSession(String sessionName){
+
+        return false;
+    }
 }

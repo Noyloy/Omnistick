@@ -19,10 +19,27 @@ import java.util.zip.CheckedInputStream;
 
 
 public class Setup extends Activity {
+
     public static final String A_KEY = "A";
     public static final String B_KEY = "B";
     public static final String C_KEY = "C";
     public static final String D_KEY = "D";
+
+    public static final String AB_KEY = "AB";
+    public static final String AC_KEY = "AC";
+    public static final String AD_KEY = "AD";
+    public static final String BC_KEY = "BC";
+    public static final String BD_KEY = "BD";
+    public static final String CD_KEY = "CD";
+
+    public static final String ABC_KEY = "ABC";
+    public static final String ABD_KEY = "ABD";
+    public static final String ACD_KEY = "ACD";
+    public static final String BCD_KEY = "BCD";
+
+    public static final String ABCD_KEY = "ABCD";
+
+
     public static final String LEFTY_KEY = "LEFTY";
 
     private SharedPreferences prefs;

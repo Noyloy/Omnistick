@@ -11,10 +11,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 
 public class SessionActivity extends Activity implements SensorEventListener {
@@ -29,6 +33,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
     private Button aBtn, bBtn, cBtn, dBtn, recBtn;
     private Uri soundToPlay = Uri.parse("android.resource://com.noy.loy.omnistick/raw/kick_02");
     private Session session;
+    private List<Integer> combination = new ArrayList<Integer>();
 
     private float[] history = new float[3];
     private Direction lastMovement = Direction.UP;
@@ -38,6 +43,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         // Get Preferences
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
@@ -48,7 +54,6 @@ public class SessionActivity extends Activity implements SensorEventListener {
         } else {
             setContentView(R.layout.activity_session);
         }
-
 
         // Hide the status bar.
         View decorView = getWindow().getDecorView();
@@ -66,10 +71,10 @@ public class SessionActivity extends Activity implements SensorEventListener {
         recBtn = (Button) findViewById(R.id.rec_button);
 
         // Set Listeners
-        aBtn.setOnClickListener(new SoundButtonClickListener());
-        bBtn.setOnClickListener(new SoundButtonClickListener());
-        cBtn.setOnClickListener(new SoundButtonClickListener());
-        dBtn.setOnClickListener(new SoundButtonClickListener());
+        aBtn.setOnTouchListener(new CombineButtonTouchListener());
+        bBtn.setOnTouchListener(new CombineButtonTouchListener());
+        cBtn.setOnTouchListener(new CombineButtonTouchListener());
+        dBtn.setOnTouchListener(new CombineButtonTouchListener());
 
         // Create and register Accelerometer
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -113,7 +118,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
         float yChange = history[1] - y;
         float zChange = history[2] - z;
 
-        Log.d("DEBUG", "x = " + x + "\txHistory = " + history[0] + "\txChange = " + xChange + "\tlast movement = " + lastMovement);
+        //Log.d("DEBUG", "x = " + x + "\txHistory = " + history[0] + "\txChange = " + xChange + "\tlast movement = " + lastMovement);
         // assign to history values
         history[0] = x;
         history[1] = y;
@@ -129,7 +134,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
         if ((xChange < -11 && !isLefty) || (xChange > 11 && isLefty)) {
             //if last time Down
             if (lastMovement == Direction.DOWN && actualTime - lastUpdate > 100) {
-                Log.d("DEBUG", "playing, time diff = " + (actualTime - lastUpdate));
+                //Log.d("DEBUG", "playing, time diff = " + (actualTime - lastUpdate));
                 session.playSound(getApplicationContext(), soundToPlay);
                 lastUpdate = actualTime;
             }
@@ -140,19 +145,9 @@ public class SessionActivity extends Activity implements SensorEventListener {
         else if ((xChange > 1.3 && !isLefty) || (xChange < -1.3 && isLefty)) {
             lastMovement = Direction.DOWN;
         }
-
-/*
-        float accelerationSquareRoot = (x * x + y * y + z * z)
-                / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
-        long actualTime = System.currentTimeMillis();
-        if (accelerationSquareRoot >= 1.7)
-        {
-            session.playSound(getApplicationContext(),soundToPlay);
-        }
-        */
     }
 
-
+    /*** Supports one button per sound */
     class SoundButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -171,6 +166,91 @@ public class SessionActivity extends Activity implements SensorEventListener {
                     break;
             }
 
+        }
+    }
+
+    /*** Supports multiple buttons per sound */
+    class CombineButtonTouchListener implements View.OnTouchListener{
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if(event.getAction() == MotionEvent.ACTION_DOWN) {
+                // add button to combination
+                combination.add(v.getId());
+            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                // remove button from combination;
+                combination.remove(combination.indexOf(v.getId()));
+            }
+            // set sound to play
+            soundToPlay = getSoundToPlay();
+            return false;
+        }
+        private String getPrefsComboKey(){
+
+            // all 4 buttons pressed
+            if (combination.contains(R.id.a_button) && combination.contains(R.id.b_button)
+                    && combination.contains(R.id.c_button) && combination.contains(R.id.d_button))
+                return Setup.ABCD_KEY;
+
+            // 3 buttons pressed
+            else if (combination.contains(R.id.a_button) && combination.contains(R.id.b_button)
+                    && combination.contains(R.id.c_button))
+                return Setup.ABC_KEY;
+            else if (combination.contains(R.id.a_button) && combination.contains(R.id.b_button)
+                    && combination.contains(R.id.d_button))
+                return Setup.ABD_KEY;
+            else if (combination.contains(R.id.a_button) && combination.contains(R.id.c_button)
+                    && combination.contains(R.id.d_button))
+                return Setup.ACD_KEY;
+            else if (combination.contains(R.id.b_button) && combination.contains(R.id.c_button)
+                    && combination.contains(R.id.d_button))
+                return Setup.BCD_KEY;
+
+            // 2 buttons pressed
+            else if (combination.contains(R.id.a_button) && combination.contains(R.id.b_button))
+                return Setup.AB_KEY;
+            else if (combination.contains(R.id.a_button) && combination.contains(R.id.c_button))
+                return Setup.AC_KEY;
+            else if (combination.contains(R.id.a_button) && combination.contains(R.id.d_button))
+                return Setup.AD_KEY;
+            else if (combination.contains(R.id.b_button) && combination.contains(R.id.c_button))
+                return Setup.BC_KEY;
+            else if (combination.contains(R.id.b_button) && combination.contains(R.id.d_button))
+                return Setup.BD_KEY;
+            else if (combination.contains(R.id.c_button) && combination.contains(R.id.d_button))
+                return Setup.CD_KEY;
+
+            // 1 button presed
+            else if (combination.contains(R.id.a_button))
+                return Setup.A_KEY;
+            else if (combination.contains(R.id.b_button))
+                return Setup.B_KEY;
+            else if (combination.contains(R.id.c_button))
+                return Setup.C_KEY;
+            else if (combination.contains(R.id.d_button))
+                return Setup.D_KEY;
+
+            // default sound
+            return Setup.A_KEY;
+        }
+        private String getDefaultSound(String key){
+            switch (key) {
+                case Setup.A_KEY:
+                    return "android.resource://com.noy.loy.omnistick/raw/kick_02";
+                case Setup.B_KEY:
+                    return "android.resource://com.noy.loy.omnistick/" + R.raw.kick_03;
+                case Setup.C_KEY:
+                    return "android.resource://com.noy.loy.omnistick/" + R.raw.kick_04;
+                case Setup.D_KEY:
+                    return "android.resource://com.noy.loy.omnistick/" + R.raw.kick_05;
+                default:
+                    return "android.resource://com.noy.loy.omnistick/raw/kick_02";
+            }
+        }
+
+        private Uri getSoundToPlay(){
+            String key = getPrefsComboKey();
+            Log.d("DEBUG", "and the key is :"+key);
+            return Uri.parse(prefs.getString(key, getDefaultSound(key)));
         }
     }
 }
