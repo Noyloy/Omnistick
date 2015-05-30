@@ -1,13 +1,4 @@
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-    <CheckBox
-        android:id="@+id/lefty_check_box"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/left_orientation"/>
+
     <LinearLayout
         android:layout_height="match_parent"
         android:layout_width="match_parent"
@@ -20,32 +11,26 @@
             android:layout_width="0px"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_weight="2">
+            android:layout_weight="1">
             <Button
-                android:id="@+id/a_button_set"
+                android:id="@+id/setup_button"
                 android:layout_width="match_parent"
                 android:layout_height="0px"
                 android:layout_weight="1"
                 android:text="@string/setSound"/>
             <Button
-                android:id="@+id/b_button_set"
+                android:id="@+id/clear_button"
                 android:layout_width="match_parent"
                 android:layout_height="0px"
                 android:layout_weight="1"
-                android:text="@string/setSound"/>
-            <Button
-                android:id="@+id/c_button_set"
+                android:text="@string/clearSound"/>
+            <ToggleButton
+                android:id="@+id/lefty_button"
                 android:layout_width="match_parent"
                 android:layout_height="0px"
                 android:layout_weight="1"
-                android:text="@string/setSound"/>
-            <Button
-                android:id="@+id/d_button_set"
-                android:layout_width="match_parent"
-                android:layout_height="0px"
-                android:layout_weight="1"
-                android:text="@string/setSound"/>
-
+                android:textOff="@string/righty"
+                android:textOn="@string/lefty"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="0px"
@@ -53,32 +38,48 @@
             android:orientation="vertical"
             android:layout_weight="1">
             <Button
-                android:id="@+id/a_button_clear"
+                android:id="@+id/background_button_set"
                 android:layout_width="match_parent"
                 android:layout_height="0px"
                 android:layout_weight="1"
-                android:text="@string/clearSound"/>
-            <Button
-                android:id="@+id/b_button_clear"
+                android:text="@string/setBackgroundSound"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0px"
+                android:layout_weight="1"></LinearLayout>
+            <ToggleButton
+                android:id="@+id/a_button_set"
                 android:layout_width="match_parent"
                 android:layout_height="0px"
                 android:layout_weight="1"
-                android:text="@string/clearSound"/>
-            <Button
-                android:id="@+id/c_button_clear"
+                android:textOn="@string/included"
+                android:textOff="@string/discluded"/>
+            <ToggleButton
+                android:id="@+id/b_button_set"
                 android:layout_width="match_parent"
                 android:layout_height="0px"
                 android:layout_weight="1"
-                android:text="@string/clearSound"/>
-            <Button
-                android:id="@+id/d_button_clear"
+                android:textOn="@string/included"
+                android:textOff="@string/discluded"/>
+            <ToggleButton
+                android:id="@+id/c_button_set"
                 android:layout_width="match_parent"
                 android:layout_height="0px"
                 android:layout_weight="1"
-                android:text="@string/clearSound"/>
+                android:textOn="@string/included"
+                android:textOff="@string/discluded"/>
+            <ToggleButton
+                android:id="@+id/d_button_set"
+                android:layout_width="match_parent"
+                android:layout_height="0px"
+                android:layout_weight="1"
+                android:textOn="@string/included"
+                android:textOff="@string/discluded"/>
+
+
         </LinearLayout>
+
 
 
     </LinearLayout>
 
-</LinearLayout>

@@ -30,7 +30,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
 
-    private Button aBtn, bBtn, cBtn, dBtn, recBtn;
+    private Button aBtn, bBtn, cBtn, dBtn, backgroundBtn, recBtn;
     private Uri soundToPlay = Uri.parse("android.resource://com.noy.loy.omnistick/raw/kick_02");
     private Session session;
     private List<Integer> combination = new ArrayList<Integer>();
@@ -39,6 +39,8 @@ public class SessionActivity extends Activity implements SensorEventListener {
     private Direction lastMovement = Direction.UP;
     private long lastUpdate;
     private boolean isLefty = false;
+
+    MediaPlayer backgroundSound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,11 +65,22 @@ public class SessionActivity extends Activity implements SensorEventListener {
         // init session
         session = new Session();
 
+        // load background sound
+        String sound_str = prefs.getString(Setup.BACKGROUND_KEY,"android.resource://com.noy.loy.omnistick/raw/kick_02");
+        backgroundSound = MediaPlayer.create(SessionActivity.this, Uri.parse(sound_str));
+        backgroundSound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {mp.release();mp = null;
+            }
+        });
+        backgroundSound.setLooping(false);
+
         // Get buttons
         aBtn = (Button) findViewById(R.id.a_button);
         bBtn = (Button) findViewById(R.id.b_button);
         cBtn = (Button) findViewById(R.id.c_button);
         dBtn = (Button) findViewById(R.id.d_button);
+        backgroundBtn = (Button) findViewById(R.id.background_button);
         recBtn = (Button) findViewById(R.id.rec_button);
 
         // Set Listeners
@@ -75,6 +88,25 @@ public class SessionActivity extends Activity implements SensorEventListener {
         bBtn.setOnTouchListener(new CombineButtonTouchListener());
         cBtn.setOnTouchListener(new CombineButtonTouchListener());
         dBtn.setOnTouchListener(new CombineButtonTouchListener());
+
+        backgroundBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // init media object
+
+                try {
+                    backgroundSound.prepare();
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (backgroundSound.isPlaying())
+                    backgroundSound.pause();
+                else
+                    backgroundSound.start();
+            }
+        });
 
         // Create and register Accelerometer
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -99,6 +131,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
     protected void onPause() {
         super.onPause();
         mSensorManager.unregisterListener(this);
+        backgroundSound.pause();
     }
 
     @Override

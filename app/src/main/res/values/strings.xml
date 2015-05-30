@@ -7,11 +7,16 @@
     <string name="how_to">How To</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_session">Session</string>
-    <string name="setSound">Set</string>
-    <string name="clearSound">Clear</string>
+    <string name="setSound">Set configuration</string>
+    <string name="setBackgroundSound">Set background music</string>
+    <string name="clearSound">Clear configuration</string>
     <string name="left_orientation">Lefty</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_projects">Projects</string>
     <string name="title_activity_setup">Setup</string>
     <string name="title_activity_how_to">HowTo</string>
+    <string name="included">choosen</string>
+    <string name="discluded">un-choosen</string>
+    <string name="lefty">lefty</string>
+    <string name="righty">righty</string>
 </resources>

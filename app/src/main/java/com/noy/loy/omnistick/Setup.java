@@ -14,38 +14,61 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ToggleButton;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.CheckedInputStream;
 
 
 public class Setup extends Activity {
 
     public static final String A_KEY = "A";
+    public static final int A_CODE = 1;
     public static final String B_KEY = "B";
+    public static final int B_CODE = 2;
     public static final String C_KEY = "C";
+    public static final int C_CODE = 3;
     public static final String D_KEY = "D";
+    public static final int D_CODE = 4;
 
     public static final String AB_KEY = "AB";
+    public static final int AB_CODE = 5;
     public static final String AC_KEY = "AC";
+    public static final int AC_CODE = 6;
     public static final String AD_KEY = "AD";
+    public static final int AD_CODE = 7;
     public static final String BC_KEY = "BC";
+    public static final int BC_CODE = 8;
     public static final String BD_KEY = "BD";
+    public static final int BD_CODE = 9;
     public static final String CD_KEY = "CD";
+    public static final int CD_CODE = 10;
 
     public static final String ABC_KEY = "ABC";
+    public static final int ABC_CODE = 11;
     public static final String ABD_KEY = "ABD";
+    public static final int ABD_CODE = 12;
     public static final String ACD_KEY = "ACD";
+    public static final int ACD_CODE = 13;
     public static final String BCD_KEY = "BCD";
+    public static final int BCD_CODE = 14;
 
     public static final String ABCD_KEY = "ABCD";
+    public static final int ABCD_CODE = 15;
 
+    public static final String BACKGROUND_KEY = "BACKGROUND";
+    public static final int BACKGROUND_CODE = 16;
 
     public static final String LEFTY_KEY = "LEFTY";
 
     private SharedPreferences prefs;
 
-    private Button aBtn, bBtn, cBtn, dBtn, aBtnClear, bBtnClear, cBtnClear, dBtnClear;
-    private CheckBox leftyCb;
+    private List<Integer> combination = new ArrayList<Integer>();
+
+    private ToggleButton aBtn, bBtn, cBtn, dBtn, leftyBtn;
+    private Button setBtn, clearBtn, backgroundBtn;
+
     private boolean isLefty = false;
 
     @Override
@@ -64,30 +87,30 @@ public class Setup extends Activity {
             setContentView(R.layout.activity_setup);
         }
 
+        // Get Toggle buttons
+        aBtn = (ToggleButton)findViewById(R.id.a_button_set);
+        bBtn = (ToggleButton)findViewById(R.id.b_button_set);
+        cBtn = (ToggleButton)findViewById(R.id.c_button_set);
+        dBtn = (ToggleButton)findViewById(R.id.d_button_set);
+        leftyBtn = (ToggleButton)findViewById(R.id.lefty_button);
+
         // Get buttons
-        aBtn = (Button)findViewById(R.id.a_button_set);
-        bBtn = (Button)findViewById(R.id.b_button_set);
-        cBtn = (Button)findViewById(R.id.c_button_set);
-        dBtn = (Button)findViewById(R.id.d_button_set);
-        aBtnClear = (Button)findViewById(R.id.a_button_clear);
-        bBtnClear = (Button)findViewById(R.id.b_button_clear);
-        cBtnClear = (Button)findViewById(R.id.c_button_clear);
-        dBtnClear = (Button)findViewById(R.id.d_button_clear);
-        // Get CheckBox
-        leftyCb = (CheckBox)findViewById(R.id.lefty_check_box);
+        setBtn = (Button) findViewById(R.id.setup_button);
+        clearBtn = (Button) findViewById(R.id.clear_button);
+        backgroundBtn = (Button) findViewById(R.id.background_button_set);
 
         // Set Listeners
-        aBtn.setOnClickListener(new SetSoundButtonClickListener());
-        bBtn.setOnClickListener(new SetSoundButtonClickListener());
-        cBtn.setOnClickListener(new SetSoundButtonClickListener());
-        dBtn.setOnClickListener(new SetSoundButtonClickListener());
-        aBtnClear.setOnClickListener(new ClearSoundButtonClickListener());
-        bBtnClear.setOnClickListener(new ClearSoundButtonClickListener());
-        cBtnClear.setOnClickListener(new ClearSoundButtonClickListener());
-        dBtnClear.setOnClickListener(new ClearSoundButtonClickListener());
+        aBtn.setOnClickListener(new CombinationChangeListener());
+        bBtn.setOnClickListener(new CombinationChangeListener());
+        cBtn.setOnClickListener(new CombinationChangeListener());
+        dBtn.setOnClickListener(new CombinationChangeListener());
 
-        leftyCb.setChecked(isLefty);
-        leftyCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        setBtn.setOnClickListener(new SetSoundButtonClickListener());
+        backgroundBtn.setOnClickListener(new SetSoundButtonClickListener());
+        clearBtn.setOnClickListener(new ClearSoundButtonClickListener());
+
+        leftyBtn.setChecked(isLefty);
+        leftyBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // Prepare to save to prefs
@@ -101,50 +124,101 @@ public class Setup extends Activity {
         });
     }
 
-    class SetSoundButtonClickListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            Intent select = new Intent();
-            select.setAction(android.content.Intent.ACTION_PICK);
-            select.setData(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-            switch(v.getId()){
-                case R.id.a_button_set:
-                    startActivityForResult(select, R.id.a_button_set);
-                    break;
-                case R.id.b_button_set:
-                    startActivityForResult(select, R.id.b_button_set);
-                    break;
-                case R.id.c_button_set:
-                    startActivityForResult(select, R.id.c_button_set);
-                    break;
-                case R.id.d_button_set:
-                    startActivityForResult(select, R.id.d_button_set);
-                    break;
-            }
+    private String getPrefsComboKey(){
 
-        }
+        // all 4 buttons pressed
+        if (combination.contains(R.id.a_button_set) && combination.contains(R.id.b_button_set)
+                && combination.contains(R.id.c_button_set) && combination.contains(R.id.d_button_set))
+            return Setup.ABCD_KEY;
+
+            // 3 buttons pressed
+        else if (combination.contains(R.id.a_button_set) && combination.contains(R.id.b_button_set)
+                && combination.contains(R.id.c_button_set))
+            return Setup.ABC_KEY;
+        else if (combination.contains(R.id.a_button_set) && combination.contains(R.id.b_button_set)
+                && combination.contains(R.id.d_button_set))
+            return Setup.ABD_KEY;
+        else if (combination.contains(R.id.a_button_set) && combination.contains(R.id.c_button_set)
+                && combination.contains(R.id.d_button_set))
+            return Setup.ACD_KEY;
+        else if (combination.contains(R.id.b_button_set) && combination.contains(R.id.c_button_set)
+                && combination.contains(R.id.d_button_set))
+            return Setup.BCD_KEY;
+
+            // 2 buttons pressed
+        else if (combination.contains(R.id.a_button_set) && combination.contains(R.id.b_button_set))
+            return Setup.AB_KEY;
+        else if (combination.contains(R.id.a_button_set) && combination.contains(R.id.c_button_set))
+            return Setup.AC_KEY;
+        else if (combination.contains(R.id.a_button_set) && combination.contains(R.id.d_button_set))
+            return Setup.AD_KEY;
+        else if (combination.contains(R.id.b_button_set) && combination.contains(R.id.c_button_set))
+            return Setup.BC_KEY;
+        else if (combination.contains(R.id.b_button_set) && combination.contains(R.id.d_button_set))
+            return Setup.BD_KEY;
+        else if (combination.contains(R.id.c_button_set) && combination.contains(R.id.d_button_set))
+            return Setup.CD_KEY;
+
+            // 1 button presed
+        else if (combination.contains(R.id.a_button_set))
+            return Setup.A_KEY;
+        else if (combination.contains(R.id.b_button_set))
+            return Setup.B_KEY;
+        else if (combination.contains(R.id.c_button_set))
+            return Setup.C_KEY;
+        else if (combination.contains(R.id.d_button_set))
+            return Setup.D_KEY;
+
+        // default sound
+        return Setup.A_KEY;
     }
-    class ClearSoundButtonClickListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            // Prepare to remove from prefs
-            SharedPreferences.Editor editor = prefs.edit();
-            switch(v.getId()){
-                case R.id.a_button_clear:
-                    editor.remove(A_KEY);
-                    break;
-                case R.id.b_button_clear:
-                    editor.remove(B_KEY);
-                    break;
-                case R.id.c_button_clear:
-                    editor.remove(C_KEY);
-                    break;
-                case R.id.d_button_clear:
-                    editor.remove(D_KEY);
-                    break;
-            }
-            editor.commit();
-        }
+    private int getPrefsComboKeyCode(){
+
+        // all 4 buttons pressed
+        if (combination.contains(R.id.a_button_set) && combination.contains(R.id.b_button_set)
+                && combination.contains(R.id.c_button_set) && combination.contains(R.id.d_button_set))
+            return Setup.ABCD_CODE;
+
+            // 3 buttons pressed
+        else if (combination.contains(R.id.a_button_set) && combination.contains(R.id.b_button_set)
+                && combination.contains(R.id.c_button_set))
+            return Setup.ABC_CODE;
+        else if (combination.contains(R.id.a_button_set) && combination.contains(R.id.b_button_set)
+                && combination.contains(R.id.d_button_set))
+            return Setup.ABD_CODE;
+        else if (combination.contains(R.id.a_button_set) && combination.contains(R.id.c_button_set)
+                && combination.contains(R.id.d_button_set))
+            return Setup.ACD_CODE;
+        else if (combination.contains(R.id.b_button_set) && combination.contains(R.id.c_button_set)
+                && combination.contains(R.id.d_button_set))
+            return Setup.BCD_CODE;
+
+            // 2 buttons pressed
+        else if (combination.contains(R.id.a_button_set) && combination.contains(R.id.b_button_set))
+            return Setup.AB_CODE;
+        else if (combination.contains(R.id.a_button_set) && combination.contains(R.id.c_button_set))
+            return Setup.AC_CODE;
+        else if (combination.contains(R.id.a_button_set) && combination.contains(R.id.d_button_set))
+            return Setup.AD_CODE;
+        else if (combination.contains(R.id.b_button_set) && combination.contains(R.id.c_button_set))
+            return Setup.BC_CODE;
+        else if (combination.contains(R.id.b_button_set) && combination.contains(R.id.d_button_set))
+            return Setup.BD_CODE;
+        else if (combination.contains(R.id.c_button_set) && combination.contains(R.id.d_button_set))
+            return Setup.CD_CODE;
+
+            // 1 button presed
+        else if (combination.contains(R.id.a_button_set))
+            return Setup.A_CODE;
+        else if (combination.contains(R.id.b_button_set))
+            return Setup.B_CODE;
+        else if (combination.contains(R.id.c_button_set))
+            return Setup.C_CODE;
+        else if (combination.contains(R.id.d_button_set))
+            return Setup.D_CODE;
+
+        // default sound
+        return Setup.A_CODE;
     }
 
     @Override
@@ -157,20 +231,89 @@ public class Setup extends Activity {
         // Prepare to save to prefs
         SharedPreferences.Editor editor = prefs.edit();
         switch (requestCode){
-            case R.id.a_button_set:
+            case A_CODE:
                 editor.putString(A_KEY,newSound.toString());
                 break;
-            case R.id.b_button_set:
+            case B_CODE:
                 editor.putString(B_KEY,newSound.toString());
                 break;
-            case R.id.c_button_set:
+            case C_CODE:
                 editor.putString(C_KEY,newSound.toString());
                 break;
-            case R.id.d_button_set:
+            case D_CODE:
                 editor.putString(D_KEY,newSound.toString());
+                break;
+            case AB_CODE:
+                editor.putString(AB_KEY,newSound.toString());
+                break;
+            case AC_CODE:
+                editor.putString(AC_KEY,newSound.toString());
+                break;
+            case AD_CODE:
+                editor.putString(AD_KEY,newSound.toString());
+                break;
+            case BC_CODE:
+                editor.putString(BC_KEY,newSound.toString());
+                break;
+            case BD_CODE:
+                editor.putString(BD_KEY,newSound.toString());
+                break;
+            case CD_CODE:
+                editor.putString(CD_KEY,newSound.toString());
+                break;
+            case ABC_CODE:
+                editor.putString(ABC_KEY,newSound.toString());
+                break;
+            case ABD_CODE:
+                editor.putString(ABD_KEY,newSound.toString());
+                break;
+            case ACD_CODE:
+                editor.putString(ACD_KEY,newSound.toString());
+                break;
+            case BCD_CODE:
+                editor.putString(BCD_KEY,newSound.toString());
+                break;
+            case ABCD_CODE:
+                editor.putString(ABCD_KEY,newSound.toString());
+                break;
+            case BACKGROUND_CODE:
+                editor.putString(BACKGROUND_KEY,newSound.toString());
                 break;
         }
         editor.commit();
     }
 
+    class CombinationChangeListener implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            ToggleButton tb = (ToggleButton)v;
+            if (tb.isChecked()) combination.add(tb.getId());
+            else combination.remove(combination.indexOf(tb.getId()));
+        }
+    }
+    class SetSoundButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Intent select = new Intent();
+            select.setAction(android.content.Intent.ACTION_PICK);
+            select.setData(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+            if (v.getId() == backgroundBtn.getId()){
+                startActivityForResult(select, BACKGROUND_CODE);
+            }
+            else{
+                int code = getPrefsComboKeyCode();
+                startActivityForResult(select, code);
+            }
+        }
+    }
+    class ClearSoundButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            // Prepare to remove from prefs
+            SharedPreferences.Editor editor = prefs.edit();
+            String code = getPrefsComboKey();
+            editor.remove(code);
+            editor.commit();
+        }
+    }
 }
