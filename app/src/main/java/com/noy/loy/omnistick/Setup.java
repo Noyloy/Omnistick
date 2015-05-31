@@ -23,6 +23,9 @@ import java.util.zip.CheckedInputStream;
 
 public class Setup extends Activity {
 
+    public static final String NONE_KEY = "NONE";
+    public static final int NONE_CODE = 0;
+
     public static final String A_KEY = "A";
     public static final int A_CODE = 1;
     public static final String B_KEY = "B";
@@ -170,7 +173,7 @@ public class Setup extends Activity {
             return Setup.D_KEY;
 
         // default sound
-        return Setup.A_KEY;
+        return Setup.NONE_KEY;
     }
     private int getPrefsComboKeyCode(){
 
@@ -218,7 +221,7 @@ public class Setup extends Activity {
             return Setup.D_CODE;
 
         // default sound
-        return Setup.A_CODE;
+        return Setup.NONE_CODE;
     }
 
     @Override
@@ -231,6 +234,9 @@ public class Setup extends Activity {
         // Prepare to save to prefs
         SharedPreferences.Editor editor = prefs.edit();
         switch (requestCode){
+            case NONE_CODE:
+                editor.putString(NONE_KEY,newSound.toString());
+                break;
             case A_CODE:
                 editor.putString(A_KEY,newSound.toString());
                 break;

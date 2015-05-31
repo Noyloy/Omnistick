@@ -31,7 +31,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
     private Sensor mAccelerometer;
 
     private Button aBtn, bBtn, cBtn, dBtn, backgroundBtn, recBtn;
-    private Uri soundToPlay = Uri.parse("android.resource://com.noy.loy.omnistick/raw/kick_02");
+    private Uri soundToPlay = Uri.parse("android.resource://com.noy.loy.omnistick/raw/snar_03");
     private Session session;
     private List<Integer> combination = new ArrayList<Integer>();
 
@@ -68,11 +68,6 @@ public class SessionActivity extends Activity implements SensorEventListener {
         // load background sound
         String sound_str = prefs.getString(Setup.BACKGROUND_KEY,"android.resource://com.noy.loy.omnistick/raw/kick_02");
         backgroundSound = MediaPlayer.create(SessionActivity.this, Uri.parse(sound_str));
-        backgroundSound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {mp.release();mp = null;
-            }
-        });
         backgroundSound.setLooping(false);
 
         // Get buttons
@@ -110,7 +105,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
 
         // Create and register Accelerometer
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
 
         // set last update for time diff
@@ -132,6 +127,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
         super.onPause();
         mSensorManager.unregisterListener(this);
         backgroundSound.pause();
+        combination.clear();
     }
 
     @Override
@@ -164,7 +160,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
         // calc direction
         // Lefty support
         // Now Up
-        if ((xChange < -11 && !isLefty) || (xChange > 11 && isLefty)) {
+        if ((xChange < -10 && !isLefty) || (xChange > 10 && isLefty)) {
             //if last time Down
             if (lastMovement == Direction.DOWN && actualTime - lastUpdate > 100) {
                 //Log.d("DEBUG", "playing, time diff = " + (actualTime - lastUpdate));
@@ -175,7 +171,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
             lastMovement = Direction.UP;
         }
         // Now Down
-        else if ((xChange > 1.3 && !isLefty) || (xChange < -1.3 && isLefty)) {
+        else if ((xChange > 3 && !isLefty) || (xChange < -3 && isLefty)) {
             lastMovement = Direction.DOWN;
         }
     }
@@ -206,16 +202,19 @@ public class SessionActivity extends Activity implements SensorEventListener {
     class CombineButtonTouchListener implements View.OnTouchListener{
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            if(event.getAction() == MotionEvent.ACTION_DOWN) {
-                // add button to combination
-                combination.add(v.getId());
-            } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                // remove button from combination;
-                combination.remove(combination.indexOf(v.getId()));
+            synchronized (combination) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_POINTER_DOWN) {
+                    // add button to combination
+                    if (combination.indexOf(v.getId()) == -1)
+                        combination.add(v.getId());
+                } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_POINTER_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                    // remove button from combination;
+                    if (combination.indexOf(v.getId()) != -1)
+                        combination.remove(combination.indexOf(v.getId()));
+                }
+                soundToPlay = getSoundToPlay();
+                return false;
             }
-            // set sound to play
-            soundToPlay = getSoundToPlay();
-            return false;
         }
         private String getPrefsComboKey(){
 
@@ -263,20 +262,45 @@ public class SessionActivity extends Activity implements SensorEventListener {
                 return Setup.D_KEY;
 
             // default sound
-            return Setup.A_KEY;
+            return Setup.NONE_KEY;
         }
         private String getDefaultSound(String key){
-            switch (key) {
+            switch (key){
                 case Setup.A_KEY:
                     return "android.resource://com.noy.loy.omnistick/raw/kick_02";
                 case Setup.B_KEY:
-                    return "android.resource://com.noy.loy.omnistick/" + R.raw.kick_03;
+                    return "android.resource://com.noy.loy.omnistick/raw/hi_h_01";
                 case Setup.C_KEY:
-                    return "android.resource://com.noy.loy.omnistick/" + R.raw.kick_04;
+                    return "android.resource://com.noy.loy.omnistick/raw/hi_h_02";
                 case Setup.D_KEY:
-                    return "android.resource://com.noy.loy.omnistick/" + R.raw.kick_05;
+                    return "android.resource://com.noy.loy.omnistick/raw/hi_h_03";
+                case Setup.AB_KEY:
+                    return "android.resource://com.noy.loy.omnistick/raw/tom_02";
+                case Setup.AC_KEY:
+                    return "android.resource://com.noy.loy.omnistick/raw/prec_02";
+                case Setup.AD_KEY:
+                    return "android.resource://com.noy.loy.omnistick/raw/snar_01";
+                case Setup.BC_KEY:
+                    return "android.resource://com.noy.loy.omnistick/raw/snar_04";
+                case Setup.BD_KEY:
+                    return "android.resource://com.noy.loy.omnistick/raw/snar_05";
+                case Setup.CD_KEY:
+                    return "android.resource://com.noy.loy.omnistick/raw/snar_07";
+                case Setup.ABC_KEY:
+                    return "android.resource://com.noy.loy.omnistick/raw/tom_01";
+                case Setup.ABD_KEY:
+                    return "android.resource://com.noy.loy.omnistick/raw/prec_01";
+                case Setup.ACD_KEY:
+                    return "android.resource://com.noy.loy.omnistick/raw/congo_01";
+                case Setup.BCD_KEY:
+                    return "android.resource://com.noy.loy.omnistick/raw/congo_02";
+                case Setup.ABCD_KEY:
+                    return "android.resource://com.noy.loy.omnistick/raw/cymb_04";
+
+                case Setup.NONE_KEY:
+                    return "android.resource://com.noy.loy.omnistick/raw/snar_03";
                 default:
-                    return "android.resource://com.noy.loy.omnistick/raw/kick_02";
+                    return "android.resource://com.noy.loy.omnistick/raw/snar_03";
             }
         }
 

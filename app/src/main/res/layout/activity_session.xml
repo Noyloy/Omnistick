@@ -10,16 +10,16 @@
         android:layout_width="0px"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_weight="2">
+        android:layout_weight="3">
         <Button
             android:id="@+id/background_button"
             android:layout_width="match_parent"
             android:layout_height="0px"
-            android:layout_weight="1"/>
+            android:layout_weight="0.5"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0px"
-            android:layout_weight="1"></LinearLayout>
+            android:layout_weight="0.5"></LinearLayout>
         <Button
             android:id="@+id/a_button"
             android:layout_width="match_parent"
@@ -41,6 +41,7 @@
             android:layout_height="0px"
             android:layout_weight="1"/>
 
+
     </LinearLayout>
     <LinearLayout
         android:layout_width="0px"
@@ -52,10 +53,13 @@
             android:layout_width="match_parent"
             android:layout_height="0px"
             android:layout_weight="1"/>
+
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0px"
-            android:layout_weight="2"></LinearLayout>
+            android:layout_weight="9"></LinearLayout>
 
 
     </LinearLayout>

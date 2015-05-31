@@ -16,12 +16,12 @@
             android:id="@+id/background_button_set"
             android:layout_width="match_parent"
             android:layout_height="0px"
-            android:layout_weight="1"
+            android:layout_weight="0.5"
             android:text="@string/setBackgroundSound"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0px"
-            android:layout_weight="1"></LinearLayout>
+            android:layout_weight="0.5"></LinearLayout>
         <ToggleButton
             android:id="@+id/a_button_set"
             android:layout_width="match_parent"
@@ -70,6 +70,7 @@
             android:layout_height="0px"
             android:layout_weight="1"
             android:text="@string/clearSound"/>
+
         <ToggleButton
             android:id="@+id/lefty_button"
             android:layout_width="match_parent"
