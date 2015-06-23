@@ -40,6 +40,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
     private Direction lastMovement = Direction.UP;
     private long lastUpdate;
     private boolean isLefty = false;
+    private int seneitivity = 10;
 
     MediaPlayer backgroundSound;
 
@@ -66,6 +67,8 @@ public class SessionActivity extends Activity implements SensorEventListener {
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
+        // get seneitivity value
+        seneitivity = prefs.getInt(Setup.SENSITIVITY_KEY,Setup.SENSITIVITY_VALUE);
 
         // init session
         session = new Session();
@@ -165,9 +168,9 @@ public class SessionActivity extends Activity implements SensorEventListener {
         // calc direction
         // Lefty support
         // Now Up
-        if ((xChange < -10 && !isLefty) || (xChange > 10 && isLefty)) {
+        if ((xChange < -seneitivity && !isLefty) || (xChange > seneitivity && isLefty)) {
             //if last time Down
-            if (lastMovement == Direction.DOWN && actualTime - lastUpdate > 100) {
+            if (lastMovement == Direction.DOWN && actualTime - lastUpdate > 50) {
                 //Log.d("DEBUG", "playing, time diff = " + (actualTime - lastUpdate));
                 session.playSound(getApplicationContext(), soundToPlay);
                 lastUpdate = actualTime;
@@ -176,7 +179,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
             lastMovement = Direction.UP;
         }
         // Now Down
-        else if ((xChange > 3 && !isLefty) || (xChange < -3 && isLefty)) {
+        else if ((xChange > 2 && !isLefty) || (xChange < -2 && isLefty)) {
             lastMovement = Direction.DOWN;
         }
     }

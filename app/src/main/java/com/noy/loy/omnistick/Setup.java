@@ -8,12 +8,16 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Spinner;
 import android.widget.ToggleButton;
 
 import java.util.ArrayList;
@@ -64,6 +68,8 @@ public class Setup extends Activity {
     public static final int BACKGROUND_CODE = 16;
 
     public static final String LEFTY_KEY = "LEFTY";
+    public static final String SENSITIVITY_KEY = "SENSITIVITY";
+    public static int SENSITIVITY_VALUE = 10;
 
     private SharedPreferences prefs;
 
@@ -73,6 +79,7 @@ public class Setup extends Activity {
     private Button setBtn, clearBtn, backgroundBtn;
 
     private boolean isLefty = false;
+    private int sens = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +109,21 @@ public class Setup extends Activity {
         clearBtn = (Button) findViewById(R.id.clear_button);
         backgroundBtn = (Button) findViewById(R.id.background_button_set);
 
+
+        // Get spinner
+        Spinner spinner = (Spinner)findViewById(R.id.sens_spinner);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.sensitivity_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+
+        // sensitivity from prefs
+        sens = prefs.getInt(SENSITIVITY_KEY,SENSITIVITY_VALUE);
+        spinner.setSelection((sens == 8) ? 0 : (sens == 10) ? 1 : 2);
+
         // Set Listeners
         aBtn.setOnClickListener(new CombinationChangeListener());
         bBtn.setOnClickListener(new CombinationChangeListener());
@@ -118,11 +140,35 @@ public class Setup extends Activity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // Prepare to save to prefs
                 SharedPreferences.Editor editor = prefs.edit();
-                editor.putBoolean(LEFTY_KEY,isChecked);
+                editor.putBoolean(LEFTY_KEY, isChecked);
                 editor.commit();
                 Intent intent = getIntent();
                 finish();
                 startActivity(intent);
+            }
+        });
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int newSens = SENSITIVITY_VALUE;
+                //position 0 -> high
+                if (position==0)
+                    newSens = 8;
+                //position 1 -> med
+                else if (position==1)
+                    newSens = 10;
+                //position 2 -> low
+                else if (position==2)
+                    newSens = 12;
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putInt(SENSITIVITY_KEY,newSens);
+                editor.commit();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
     }
