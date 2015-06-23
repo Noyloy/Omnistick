@@ -13,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 
 import java.io.IOException;
@@ -49,6 +50,9 @@ public class SessionActivity extends Activity implements SensorEventListener {
         // Get Preferences
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
         // Lefty support
         isLefty = prefs.getBoolean(Setup.LEFTY_KEY, false);
         if (isLefty) {
@@ -61,6 +65,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+
 
         // init session
         session = new Session();
