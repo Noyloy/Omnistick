@@ -68,8 +68,12 @@ public class Setup extends Activity {
     public static final int BACKGROUND_CODE = 16;
 
     public static final String LEFTY_KEY = "LEFTY";
+    public static final String PROJECT_KEY = "PROJECT";
+    public static final String PROJECT_NUM = "PROJECT_N";
+
     public static final String SENSITIVITY_KEY = "SENSITIVITY";
     public static int SENSITIVITY_VALUE = 10;
+
 
     private SharedPreferences prefs;
 
@@ -154,13 +158,13 @@ public class Setup extends Activity {
                 int newSens = SENSITIVITY_VALUE;
                 //position 0 -> high
                 if (position==0)
-                    newSens = 8;
+                    newSens = 5;
                 //position 1 -> med
                 else if (position==1)
                     newSens = 10;
                 //position 2 -> low
                 else if (position==2)
-                    newSens = 12;
+                    newSens = 15;
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putInt(SENSITIVITY_KEY,newSens);
                 editor.commit();

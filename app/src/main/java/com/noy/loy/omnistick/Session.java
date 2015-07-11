@@ -1,8 +1,13 @@
 package com.noy.loy.omnistick;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.util.Log;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -15,7 +20,8 @@ public class Session {
     private String name;
     private Long duration;
     private Long startMilisec;
-    private HashMap<Long,Uri> soundLog;
+    private HashMap<Long,Uri> soundLog = new HashMap<>();
+    private SharedPreferences prefs;
 
     public void Session(){ }
     /* play sound without logging it*/
@@ -74,7 +80,8 @@ public class Session {
             }
         }).start();
         // register when the sound was played
-        registerTime(soundPath, time);
+        if (startMilisec!=null)
+            registerTime(soundPath, time);
     }
     /* register which sound was played and when */
     public void registerTime(Uri soundPath, Long sysMilisec){
@@ -85,13 +92,25 @@ public class Session {
     public void endSession(){
         Long endMilisec = System.currentTimeMillis();
         duration = endMilisec - startMilisec;
+        Log.d("SESSION_DEBUG", "Session End : " +soundLog.toString());
     }
     /* start recording, set time of start*/
     public void startSession(){
         startMilisec = System.currentTimeMillis();
     }
-    public boolean saveSession(String sessionName){
+    public boolean saveSession(final Context context, String sessionName){
+        // Init Preferences
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int sessionNum = prefs.getInt(Setup.PROJECT_NUM,0);
+        sessionNum++;
+        SharedPreferences.Editor editor = prefs.edit();
+        JSONObject jsonObject = new JSONObject(soundLog);
+        String sessionStr = jsonObject.toString();
 
+        editor.putString(Setup.PROJECT_KEY+sessionNum,sessionStr);
+        editor.putInt(Setup.PROJECT_NUM, sessionNum);
+
+        editor.commit();
         return false;
     }
 }

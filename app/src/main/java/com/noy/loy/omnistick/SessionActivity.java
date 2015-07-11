@@ -41,7 +41,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
     private long lastUpdate;
     private boolean isLefty = false;
     private int seneitivity = 10;
-
+    private int recTimesClicked = 0;
     MediaPlayer backgroundSound;
 
     @Override
@@ -91,6 +91,20 @@ public class SessionActivity extends Activity implements SensorEventListener {
         bBtn.setOnTouchListener(new CombineButtonTouchListener());
         cBtn.setOnTouchListener(new CombineButtonTouchListener());
         dBtn.setOnTouchListener(new CombineButtonTouchListener());
+
+        recBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recTimesClicked++;
+                if (recTimesClicked%2==1){
+                    session.startSession();
+                }
+                else if (recTimesClicked%2==0){
+                    session.endSession();
+                    //TODO: prompt shoud you save this session? enter name.
+                }
+            }
+        });
 
         backgroundBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -172,7 +186,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
             //if last time Down
             if (lastMovement == Direction.DOWN && actualTime - lastUpdate > 50) {
                 //Log.d("DEBUG", "playing, time diff = " + (actualTime - lastUpdate));
-                session.playSound(getApplicationContext(), soundToPlay);
+                session.playSound(getApplicationContext(), soundToPlay, actualTime);
                 lastUpdate = actualTime;
             }
             // Update movement
