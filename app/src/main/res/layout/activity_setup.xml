@@ -24,8 +24,10 @@
             android:layout_weight="0.5">
             <Spinner
                 android:id="@+id/sens_spinner"
+                android:layout_margin="9px"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:spinnerMode="dropdown"
                 ></Spinner>
         </LinearLayout>
         <ToggleButton
