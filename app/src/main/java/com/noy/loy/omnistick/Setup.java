@@ -68,7 +68,9 @@ public class Setup extends Activity {
     public static final int BACKGROUND_CODE = 16;
 
     public static final String LEFTY_KEY = "LEFTY";
-    public static final String PROJECT_KEY = "PROJECT";
+    public static final String PROJECT_CONTENT_KEY = "PROJECT";
+    public static final String PROJECT_NAME_KEY = "PROJECTNAME";
+    public static final String PROJECT_LENGTH_KEY = "PROJECTLEN";
     public static final String PROJECT_NUM = "PROJECT_N";
 
     public static final String SENSITIVITY_KEY = "SENSITIVITY";

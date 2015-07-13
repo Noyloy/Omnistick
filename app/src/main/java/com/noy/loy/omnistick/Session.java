@@ -20,10 +20,11 @@ public class Session {
     private String name;
     private Long duration;
     private Long startMilisec;
-    private HashMap<Long,Uri> soundLog = new HashMap<>();
+    private HashMap<String,String> soundLog = new HashMap<>();
     private SharedPreferences prefs;
 
     public void Session(){ }
+
     /* play sound without logging it*/
     public void playSound(final Context context, final Uri soundPath){
         // work on thread
@@ -52,6 +53,7 @@ public class Session {
             }
         }).start();
     }
+
     /* play sound and log it*/
     public void playSound(final Context context, final Uri soundPath, Long time){
         // work on thread
@@ -83,21 +85,25 @@ public class Session {
         if (startMilisec!=null)
             registerTime(soundPath, time);
     }
+
     /* register which sound was played and when */
     public void registerTime(Uri soundPath, Long sysMilisec){
         Long milisecFromStart = sysMilisec - startMilisec;
-        soundLog.put(milisecFromStart,soundPath);
+        soundLog.put(String.valueOf(milisecFromStart),String.valueOf(soundPath));
     }
+
     /* set time of stop recording, set duration */
     public void endSession(){
         Long endMilisec = System.currentTimeMillis();
         duration = endMilisec - startMilisec;
         Log.d("SESSION_DEBUG", "Session End : " +soundLog.toString());
     }
+
     /* start recording, set time of start*/
     public void startSession(){
         startMilisec = System.currentTimeMillis();
     }
+
     public boolean saveSession(final Context context, String sessionName){
         // Init Preferences
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -107,7 +113,9 @@ public class Session {
         JSONObject jsonObject = new JSONObject(soundLog);
         String sessionStr = jsonObject.toString();
 
-        editor.putString(Setup.PROJECT_KEY+sessionNum,sessionStr);
+        editor.putString(Setup.PROJECT_CONTENT_KEY + sessionNum, sessionStr);
+        editor.putString(Setup.PROJECT_NAME_KEY + sessionNum, sessionName);
+        editor.putLong(Setup.PROJECT_LENGTH_KEY + sessionNum, duration);
         editor.putInt(Setup.PROJECT_NUM, sessionNum);
 
         editor.commit();

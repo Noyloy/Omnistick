@@ -1,6 +1,8 @@
 package com.noy.loy.omnistick;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -11,10 +13,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +44,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
     private Direction lastMovement = Direction.UP;
     private long lastUpdate;
     private boolean isLefty = false;
-    private int seneitivity = 10;
+    private int sensitivity = 10;
     private int recTimesClicked = 0;
     MediaPlayer backgroundSound;
 
@@ -54,6 +58,11 @@ public class SessionActivity extends Activity implements SensorEventListener {
         //Remove title bar
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
+        // Hide the status bar.
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+
         // Lefty support
         isLefty = prefs.getBoolean(Setup.LEFTY_KEY, false);
         if (isLefty) {
@@ -62,13 +71,8 @@ public class SessionActivity extends Activity implements SensorEventListener {
             setContentView(R.layout.activity_session);
         }
 
-        // Hide the status bar.
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
-
         // get seneitivity value
-        seneitivity = prefs.getInt(Setup.SENSITIVITY_KEY,Setup.SENSITIVITY_VALUE);
+        sensitivity = prefs.getInt(Setup.SENSITIVITY_KEY,Setup.SENSITIVITY_VALUE);
 
         // init session
         session = new Session();
@@ -92,20 +96,6 @@ public class SessionActivity extends Activity implements SensorEventListener {
         cBtn.setOnTouchListener(new CombineButtonTouchListener());
         dBtn.setOnTouchListener(new CombineButtonTouchListener());
 
-        recBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                recTimesClicked++;
-                if (recTimesClicked%2==1){
-                    session.startSession();
-                }
-                else if (recTimesClicked%2==0){
-                    session.endSession();
-                    //TODO: prompt shoud you save this session? enter name.
-                }
-            }
-        });
-
         backgroundBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -122,6 +112,50 @@ public class SessionActivity extends Activity implements SensorEventListener {
                     backgroundSound.pause();
                 else
                     backgroundSound.start();
+            }
+        });
+
+        recBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recTimesClicked++;
+                if (recTimesClicked%2==1){
+                    session.startSession();
+                }
+                else if (recTimesClicked%2==0){
+                    session.endSession();
+                    //TODO: prompt shoud you save this session? enter name.
+                    // get prompts.xml view
+                    LayoutInflater layoutInflater = LayoutInflater.from(SessionActivity.this);
+                    View promptView = layoutInflater.inflate(R.layout.prompt_save, null);
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SessionActivity.this);
+
+                    // set prompts.xml to be the layout file of the alertdialog builder
+                    alertDialogBuilder.setView(promptView);
+                    final EditText input = (EditText) promptView.findViewById(R.id.userInput);
+
+                    // setup a dialog window
+                    alertDialogBuilder
+                            .setCancelable(false)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // get user input and set it to result
+                                    String inText = input.getText().toString();
+                                    session.saveSession(SessionActivity.this, inText);
+                                }
+                            })
+                            .setNegativeButton("Cancel",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,	int id) {
+                                            dialog.cancel();
+                                        }
+                                    });
+
+                    // create an alert dialog
+                    AlertDialog alertD = alertDialogBuilder.create();
+
+                    alertD.show();
+                }
             }
         });
 
@@ -182,7 +216,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
         // calc direction
         // Lefty support
         // Now Up
-        if ((xChange < -seneitivity && !isLefty) || (xChange > seneitivity && isLefty)) {
+        if ((xChange < -sensitivity && !isLefty) || (xChange > sensitivity && isLefty)) {
             //if last time Down
             if (lastMovement == Direction.DOWN && actualTime - lastUpdate > 50) {
                 //Log.d("DEBUG", "playing, time diff = " + (actualTime - lastUpdate));
