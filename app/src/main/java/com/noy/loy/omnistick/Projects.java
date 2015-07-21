@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -89,8 +90,10 @@ public class Projects extends Activity {
             // minutes calc
             long minutes = milisec/60000;
             // seconds left calc
-            long secondes = milisec/1000 - minutes;
-            lengths.add(i-1,minutes+":"+secondes);
+            long secondes = milisec/1000 - minutes*60;
+            String min = (minutes<10)?"0"+minutes : ""+minutes;
+            String sec = (secondes<10)?"0"+secondes : ""+secondes;
+            lengths.add(i-1,min+":"+sec);
         }
         return lengths;
     }
@@ -134,9 +137,12 @@ public class Projects extends Activity {
             // Lookup view for data population
             TextView tvName = (TextView) convertView.findViewById(R.id.title);
             TextView tvLength = (TextView) convertView.findViewById(R.id.duration);
+            ImageView thumbnail = (ImageView) convertView.findViewById(R.id.list_image);
+
             // Populate the data into the template view using the data object
             tvName.setText(user.name);
             tvLength.setText(user.length);
+            thumbnail.setImageResource(R.drawable.play);
             // Return the completed view to render on screen
             return convertView;
         }

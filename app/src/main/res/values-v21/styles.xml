@@ -1,0 +1,23 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="android:Theme.Material.Light">
+        <!-- Customize your theme here. -->
+        <item name="android:windowActionBar">true</item>
+        <item name="android:windowNoTitle">false</item>
+        <item name="android:colorPrimary">#006557</item>
+        <item name="android:colorPrimaryDark">#004739</item>
+        <item name="android:windowBackground">@color/material_deep_teal_500</item>
+
+        <item name="android:popupBackground">#B6B6B6</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:divider">#004739</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+
+        <item name="android:colorButtonNormal">#145143</item>
+        <item name="android:colorAccent">#FF5722</item>
+
+        <item name="android:navigationBarColor">#006557</item>
+    </style>
+
+</resources>

@@ -8,7 +8,7 @@
         android:id="@+id/list"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:divider="#b5b5b5"
+        android:divider="#4B5961"
         android:dividerHeight="1dp"/>
 
 </LinearLayout>
