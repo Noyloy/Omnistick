@@ -8,10 +8,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONObject;
 
@@ -34,16 +37,36 @@ public class Projects extends Activity {
     }
 
     private void populateList() {
+        // Construct the data source
+        ArrayList<ProjectElement> arrayOfUsers = new ArrayList<ProjectElement>();
+        // Create the adapter to convert the array to views
+        ProjectAdapter adapter = new ProjectAdapter(this, arrayOfUsers);
+        // Attach the adapter to a ListView
+        ListView listView = (ListView) findViewById(R.id.list);
+        insertProjects(arrayOfUsers);
+        listView.setAdapter(adapter);
+
+
+
+        //ArrayList<String> names = getNames();
+        //ArrayList<String> lengths = getLengths();
+        //ArrayList<ProjectElement> projElement = getProjects();
+        //ArrayAdapter<String> name_adapt = new ArrayAdapter<String>(Projects.this,R.layout.project_line,R.id.title,names);
+        //mListView.setAdapter(name_adapt);
+        //mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        //    @Override
+        //    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        //        Log.d("PROJECTS_D","Selection of item "+position+" THE VIEW:"+ view+" id:"+ id );
+        //    }
+        //});
+    }
+
+    private void insertProjects(ArrayList<ProjectElement> arrayOfUsers) {
         ArrayList<String> names = getNames();
         ArrayList<String> lengths = getLengths();
-        ArrayAdapter<String> name_adapt = new ArrayAdapter<String>(Projects.this,R.layout.project_line,R.id.title,names);
-        mListView.setAdapter(name_adapt);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("PROJECTS_D","Selection of item "+position+" THE VIEW:"+ view+" id:"+ id );
-            }
-        });
+        for (int i = 0; i<names.size(); i++){
+            arrayOfUsers.add(new ProjectElement(names.get(i),lengths.get(i)));
+        }
     }
 
     private ArrayList<String> getNames(){
@@ -94,4 +117,28 @@ public class Projects extends Activity {
         return outputMap;
     }
 
+
+    public class ProjectAdapter extends ArrayAdapter<ProjectElement> {
+        public ProjectAdapter(Context context, ArrayList<ProjectElement> users) {
+            super(context, 0, users);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            // Get the data item for this position
+            ProjectElement user = getItem(position);
+            // Check if an existing view is being reused, otherwise inflate the view
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.project_line, parent, false);
+            }
+            // Lookup view for data population
+            TextView tvName = (TextView) convertView.findViewById(R.id.title);
+            TextView tvLength = (TextView) convertView.findViewById(R.id.duration);
+            // Populate the data into the template view using the data object
+            tvName.setText(user.name);
+            tvLength.setText(user.length);
+            // Return the completed view to render on screen
+            return convertView;
+        }
+    }
 }
