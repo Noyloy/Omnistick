@@ -22,8 +22,13 @@ public class Session {
     private Long startMilisec;
     private HashMap<String,String> soundLog = new HashMap<>();
     private SharedPreferences prefs;
+    private String playPauseBackground = "";
+    private String backgroundSound = "";
+    int backgroundCount = 0;
 
-    public void Session(){ }
+    Session(String backgroundSound){
+        this.backgroundSound = backgroundSound;
+    }
 
     /* play sound without logging it*/
     public void playSound(final Context context, final Uri soundPath){
@@ -92,10 +97,17 @@ public class Session {
         soundLog.put(String.valueOf(milisecFromStart),String.valueOf(soundPath));
     }
 
+    public void registerBackTime(Long sysTime) {
+        backgroundCount++;
+        playPauseBackground+=(sysTime-startMilisec)+",";
+    }
+
     /* set time of stop recording, set duration */
     public void endSession(){
         Long endMilisec = System.currentTimeMillis();
         duration = endMilisec - startMilisec;
+        if (backgroundCount%2!=0) playPauseBackground+=duration+"";
+        else playPauseBackground=playPauseBackground.substring(0,playPauseBackground.length()-1);
         Log.d("SESSION_DEBUG", "Session End : " +soundLog.toString());
     }
 
@@ -115,6 +127,8 @@ public class Session {
 
         editor.putString(Setup.PROJECT_CONTENT_KEY + sessionNum, sessionStr);
         editor.putString(Setup.PROJECT_NAME_KEY + sessionNum, sessionName);
+        editor.putString(Setup.BACKGROUND_KEY + sessionNum, backgroundSound);
+        editor.putString(Setup.BACKGROUND_KEY + sessionNum+"TIMES", playPauseBackground);
         editor.putLong(Setup.PROJECT_LENGTH_KEY + sessionNum, duration);
         editor.putInt(Setup.PROJECT_NUM, sessionNum);
 

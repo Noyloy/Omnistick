@@ -3,8 +3,9 @@ package com.noy.loy.omnistick;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -22,11 +23,15 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 
 public class Projects extends Activity {
     ListView mListView;
+    MediaPlayer backgroundSound;
+    ArrayList<Long> playPauseBackground = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,20 +51,19 @@ public class Projects extends Activity {
         ListView listView = (ListView) findViewById(R.id.list);
         insertProjects(arrayOfUsers);
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ImageView thumbnail = (ImageView) view.findViewById(R.id.list_image);
+                thumbnail.setImageResource(R.drawable.stop);
+                playProjectNum(position + 1, thumbnail);
+            }
+        });
+    }
 
-
-
-        //ArrayList<String> names = getNames();
-        //ArrayList<String> lengths = getLengths();
-        //ArrayList<ProjectElement> projElement = getProjects();
-        //ArrayAdapter<String> name_adapt = new ArrayAdapter<String>(Projects.this,R.layout.project_line,R.id.title,names);
-        //mListView.setAdapter(name_adapt);
-        //mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-        //    @Override
-        //    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        //        Log.d("PROJECTS_D","Selection of item "+position+" THE VIEW:"+ view+" id:"+ id );
-        //    }
-        //});
+    private void playProjectNum(final int projNum,final ImageView thumb){
+        MyPlayer player = new MyPlayer();
+        player.execute(projNum);
     }
 
     private void insertProjects(ArrayList<ProjectElement> arrayOfUsers) {
@@ -73,7 +77,7 @@ public class Projects extends Activity {
     private ArrayList<String> getNames(){
         ArrayList<String> names = new ArrayList<>();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(Projects.this);
-        int numOfProj = prefs.getInt(Setup.PROJECT_NUM,0);
+        int numOfProj = prefs.getInt(Setup.PROJECT_NUM, 0);
         for (int i=1;i<=numOfProj;i++){
             String tmpName = prefs.getString(Setup.PROJECT_NAME_KEY+i,"NO-NAME");
             names.add(i-1,tmpName);
@@ -84,7 +88,7 @@ public class Projects extends Activity {
     private ArrayList<String> getLengths(){
         ArrayList<String> lengths = new ArrayList<>();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(Projects.this);
-        int numOfProj = prefs.getInt(Setup.PROJECT_NUM,0);
+        int numOfProj = prefs.getInt(Setup.PROJECT_NUM, 0);
         for (int i=1;i<=numOfProj;i++){
             long milisec = prefs.getLong(Setup.PROJECT_LENGTH_KEY+i,0);
             // minutes calc
@@ -99,18 +103,30 @@ public class Projects extends Activity {
     }
 
     private HashMap<Long,Uri> loadProjectMap(int project_index) {
+        Log.d("projectMap",project_index+"");
         HashMap<Long,Uri> outputMap = new HashMap<Long,Uri>();
         SharedPreferences pSharedPref = PreferenceManager.getDefaultSharedPreferences(Projects.this);
 
         try {
             if (pSharedPref != null) {
+                // load background sound
+                final String sound_str = pSharedPref.getString(Setup.BACKGROUND_KEY + project_index,"android.resource://com.noy.loy.omnistick/raw/kick_02");
+                backgroundSound = MediaPlayer.create(Projects.this, Uri.parse(sound_str));
+                backgroundSound.setLooping(false);
+                final String playPause = pSharedPref.getString(Setup.BACKGROUND_KEY + project_index+"TIMES","");
+                String[] playPauseString = playPause.split(",");
+                for(int i=0;i<playPauseString.length;i++){
+                    playPauseBackground.add(Long.parseLong(playPauseString[i]));
+                }
+
                 String jsonString = pSharedPref.getString(Setup.PROJECT_CONTENT_KEY + project_index, (new JSONObject()).toString());
+                Log.d("JSONPROJ",jsonString);
                 JSONObject jsonObject = new JSONObject(jsonString);
                 Iterator<String> keysItr = jsonObject.keys();
                 while (keysItr.hasNext()) {
                     String key = keysItr.next();
-                    Long timeKey = Long.valueOf(key).longValue();
-                    Uri value = (Uri) jsonObject.get(key);
+                    Long timeKey = Long.valueOf(key);
+                    Uri value = Uri.parse((String) jsonObject.get(key));
                     outputMap.put(timeKey, value);
                 }
             }
@@ -120,6 +136,17 @@ public class Projects extends Activity {
         return outputMap;
     }
 
+    public View getViewByPosition(int pos, ListView listView) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+
+        if (pos < firstListItemPosition || pos > lastListItemPosition ) {
+            return listView.getAdapter().getView(pos, null, listView);
+        } else {
+            final int childIndex = pos - firstListItemPosition;
+            return listView.getChildAt(childIndex);
+        }
+    }
 
     public class ProjectAdapter extends ArrayAdapter<ProjectElement> {
         public ProjectAdapter(Context context, ArrayList<ProjectElement> users) {
@@ -145,6 +172,72 @@ public class Projects extends Activity {
             thumbnail.setImageResource(R.drawable.play);
             // Return the completed view to render on screen
             return convertView;
+        }
+    }
+
+    public class MyPlayer extends AsyncTask<Integer, Long, View> {
+
+        @Override
+        protected View doInBackground(Integer... params) {
+
+
+            HashMap<Long,Uri> project_content = loadProjectMap(params[0]);
+            Map<Long,Uri> treeMap = new TreeMap<Long,Uri>(project_content);
+            Session playback = new Session("");
+            long lastTimePlayed = 0;
+            Iterator it = treeMap.entrySet().iterator();
+
+
+            // background music
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Iterator<Long> iterator = playPauseBackground.iterator();
+                    while(iterator.hasNext())
+                    {
+                        // sleep till my time comes
+                        try {
+                            Thread.sleep(iterator.next());
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        if (backgroundSound.isPlaying()){
+                            backgroundSound.pause();
+                        }
+                        else{
+                            backgroundSound.start();
+                        }
+                    }
+                }
+            }).start();
+
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry)it.next();
+                // wait until my time comes
+                try {
+                    Thread.sleep(Long.parseLong(pair.getKey().toString())-lastTimePlayed);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                playback.playSound(Projects.this, Uri.parse(pair.getValue().toString()));
+
+                lastTimePlayed = Long.parseLong(pair.getKey().toString());
+                it.remove(); // avoids a ConcurrentModificationException
+            }
+            return getViewByPosition(params[0]-1,mListView);
+        }
+
+        @Override
+        protected void onPostExecute(final View v) {
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ImageView thumbnail = (ImageView) v.findViewById(R.id.list_image);
+                    thumbnail.setImageResource(R.drawable.play);
+                }
+            });
         }
     }
 }

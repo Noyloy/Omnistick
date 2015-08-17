@@ -74,13 +74,15 @@ public class SessionActivity extends Activity implements SensorEventListener {
         // get seneitivity value
         sensitivity = prefs.getInt(Setup.SENSITIVITY_KEY,Setup.SENSITIVITY_VALUE);
 
-        // init session
-        session = new Session();
-
         // load background sound
         String sound_str = prefs.getString(Setup.BACKGROUND_KEY,"android.resource://com.noy.loy.omnistick/raw/kick_02");
         backgroundSound = MediaPlayer.create(SessionActivity.this, Uri.parse(sound_str));
         backgroundSound.setLooping(false);
+
+        // init session
+        session = new Session(sound_str);
+
+
 
         // Get buttons
         aBtn = (Button) findViewById(R.id.a_button);
@@ -112,6 +114,8 @@ public class SessionActivity extends Activity implements SensorEventListener {
                     backgroundSound.pause();
                 else
                     backgroundSound.start();
+
+                session.registerBackTime(System.currentTimeMillis());
             }
         });
 
@@ -124,7 +128,8 @@ public class SessionActivity extends Activity implements SensorEventListener {
                 }
                 else if (recTimesClicked%2==0){
                     session.endSession();
-                    //TODO: prompt shoud you save this session? enter name.
+                    if (backgroundSound.isPlaying())
+                        backgroundSound.pause();
                     // get prompts.xml view
                     LayoutInflater layoutInflater = LayoutInflater.from(SessionActivity.this);
                     View promptView = layoutInflater.inflate(R.layout.prompt_save, null);
