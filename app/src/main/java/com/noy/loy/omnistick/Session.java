@@ -31,9 +31,9 @@ public class Session {
     }
 
     /* play sound without logging it*/
-    public void playSound(final Context context, final Uri soundPath){
+    public Thread playSound(final Context context, final Uri soundPath){
         // work on thread
-        new Thread(new Runnable(){
+        Thread t = new Thread(new Runnable(){
             @Override
             public void run() {
                 // init media object
@@ -56,7 +56,9 @@ public class Session {
                 // play sound
                 sound.start();
             }
-        }).start();
+        });
+        t.start();
+        return t;
     }
 
     /* play sound and log it*/
@@ -107,7 +109,7 @@ public class Session {
         Long endMilisec = System.currentTimeMillis();
         duration = endMilisec - startMilisec;
         if (backgroundCount%2!=0) playPauseBackground+=duration+"";
-        else playPauseBackground=playPauseBackground.substring(0,playPauseBackground.length()-1);
+        else if (playPauseBackground.length()>1)playPauseBackground=playPauseBackground.substring(0,playPauseBackground.length()-1);
         Log.d("SESSION_DEBUG", "Session End : " +soundLog.toString());
     }
 

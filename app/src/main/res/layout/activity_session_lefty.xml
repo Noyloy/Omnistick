@@ -15,7 +15,9 @@
             android:id="@+id/rec_button"
             android:layout_width="match_parent"
             android:layout_height="0px"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:drawableLeft="@drawable/record"
+            android:text="@string/record"/>
 
 
 
@@ -35,7 +37,8 @@
             android:id="@+id/background_button"
             android:layout_width="match_parent"
             android:layout_height="0px"
-            android:layout_weight="0.5"/>
+            android:layout_weight="0.5"
+            android:text="@string/playBackground"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0px"
@@ -44,22 +47,26 @@
             android:id="@+id/a_button"
             android:layout_width="match_parent"
             android:layout_height="0px"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:drawableRight="@drawable/a"/>
         <Button
             android:id="@+id/b_button"
             android:layout_width="match_parent"
             android:layout_height="0px"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:drawableRight="@drawable/b"/>
         <Button
             android:id="@+id/c_button"
             android:layout_width="match_parent"
             android:layout_height="0px"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:drawableRight="@drawable/c"/>
         <Button
             android:id="@+id/d_button"
             android:layout_width="match_parent"
             android:layout_height="0px"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:drawableRight="@drawable/d"/>
 
 
     </LinearLayout>

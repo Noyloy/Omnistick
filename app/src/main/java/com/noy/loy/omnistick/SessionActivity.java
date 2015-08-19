@@ -47,6 +47,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
     private int sensitivity = 10;
     private int recTimesClicked = 0;
     MediaPlayer backgroundSound;
+    String sound_str;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +76,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
         sensitivity = prefs.getInt(Setup.SENSITIVITY_KEY,Setup.SENSITIVITY_VALUE);
 
         // load background sound
-        String sound_str = prefs.getString(Setup.BACKGROUND_KEY,"android.resource://com.noy.loy.omnistick/raw/kick_02");
+        sound_str = prefs.getString(Setup.BACKGROUND_KEY,"android.resource://com.noy.loy.omnistick/raw/default_background");
         backgroundSound = MediaPlayer.create(SessionActivity.this, Uri.parse(sound_str));
         backgroundSound.setLooping(false);
 
@@ -110,12 +111,16 @@ public class SessionActivity extends Activity implements SensorEventListener {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                if (backgroundSound.isPlaying())
+                if (backgroundSound.isPlaying()) {
+                    backgroundBtn.setText(R.string.playBackground);
                     backgroundSound.pause();
-                else
+                }
+                else {
+                    backgroundBtn.setText(R.string.pauseBackground);
                     backgroundSound.start();
+                }
 
-                session.registerBackTime(System.currentTimeMillis());
+                if (recTimesClicked%2==1) session.registerBackTime(System.currentTimeMillis());
             }
         });
 
@@ -125,8 +130,14 @@ public class SessionActivity extends Activity implements SensorEventListener {
                 recTimesClicked++;
                 if (recTimesClicked%2==1){
                     session.startSession();
+                    int imgResource = R.drawable.save;
+                    recBtn.setCompoundDrawablesWithIntrinsicBounds(imgResource, 0, 0, 0);
+                    recBtn.setText(R.string.recording);
                 }
                 else if (recTimesClicked%2==0){
+                    int imgResource = R.drawable.record;
+                    recBtn.setCompoundDrawablesWithIntrinsicBounds(imgResource, 0, 0, 0);
+                    recBtn.setText(R.string.record);
                     session.endSession();
                     if (backgroundSound.isPlaying())
                         backgroundSound.pause();
@@ -147,6 +158,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
                                     // get user input and set it to result
                                     String inText = input.getText().toString();
                                     session.saveSession(SessionActivity.this, inText);
+                                    session = new Session(sound_str);
                                 }
                             })
                             .setNegativeButton("Cancel",
@@ -160,6 +172,7 @@ public class SessionActivity extends Activity implements SensorEventListener {
                     AlertDialog alertD = alertDialogBuilder.create();
 
                     alertD.show();
+
                 }
             }
         });

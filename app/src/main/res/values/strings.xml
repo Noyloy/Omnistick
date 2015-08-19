@@ -19,6 +19,10 @@
     <string name="discluded">un-choosen</string>
     <string name="lefty">lefty</string>
     <string name="righty">righty</string>
+    <string name="record">record</string>
+    <string name="recording">recording...</string>
+    <string name="playBackground">play background</string>
+    <string name="pauseBackground">pause background</string>
 
     <string-array name="sensitivity_array">
         <item>high sensitivity</item>

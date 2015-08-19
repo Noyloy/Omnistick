@@ -23,7 +23,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -31,14 +30,15 @@ import java.util.TreeMap;
 public class Projects extends Activity {
     ListView mListView;
     MediaPlayer backgroundSound;
+    Map<Integer,Integer> clickMap = new HashMap<>();
     ArrayList<Long> playPauseBackground = new ArrayList<>();
-
+    MyPlayer player;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_projects);
-        mListView = (ListView) findViewById(R.id.list);
 
+        mListView = (ListView) findViewById(R.id.list);
         populateList();
     }
 
@@ -54,16 +54,32 @@ public class Projects extends Activity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ImageView thumbnail = (ImageView) view.findViewById(R.id.list_image);
-                thumbnail.setImageResource(R.drawable.stop);
-                playProjectNum(position + 1, thumbnail);
+
+                Integer clickTimes = clickMap.get(position);
+                if (clickTimes == null) clickTimes = 0;
+                if (clickTimes % 2 == 0) {
+                    ImageView thumbnail = (ImageView) view.findViewById(R.id.list_image);
+                    playProjectNum(position + 1, thumbnail);
+                } else {
+                    stopProjectNum(position);
+                    ImageView thumbnail = (ImageView) view.findViewById(R.id.list_image);
+                    thumbnail.setImageResource(R.drawable.play);
+                }
+                clickTimes++;
+                clickMap.put(position, clickTimes);
             }
         });
     }
+    private void stopProjectNum(int projNum){
+        if (backgroundSound.isPlaying())
+            backgroundSound.stop();
+        player.cancel(false);
+    }
 
     private void playProjectNum(final int projNum,final ImageView thumb){
-        MyPlayer player = new MyPlayer();
+        player = new MyPlayer();
         player.execute(projNum);
+        thumb.setImageResource(R.drawable.stop);
     }
 
     private void insertProjects(ArrayList<ProjectElement> arrayOfUsers) {
@@ -212,7 +228,7 @@ public class Projects extends Activity {
                 }
             }).start();
 
-            while (it.hasNext()) {
+            while (it.hasNext() && !isCancelled()) {
                 Map.Entry pair = (Map.Entry)it.next();
                 // wait until my time comes
                 try {
@@ -220,7 +236,7 @@ public class Projects extends Activity {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                playback.playSound(Projects.this, Uri.parse(pair.getValue().toString()));
+                Thread t = playback.playSound(Projects.this,Uri.parse(pair.getValue().toString()));
 
                 lastTimePlayed = Long.parseLong(pair.getKey().toString());
                 it.remove(); // avoids a ConcurrentModificationException
