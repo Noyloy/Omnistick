@@ -36,28 +36,32 @@
             android:layout_height="0px"
             android:layout_weight="1"
             android:textOn="@string/included"
-            android:textOff="@string/discluded"/>
+            android:textOff="@string/discluded"
+            android:drawableLeft="@drawable/a"/>
         <ToggleButton
             android:id="@+id/b_button_set"
             android:layout_width="match_parent"
             android:layout_height="0px"
             android:layout_weight="1"
             android:textOn="@string/included"
-            android:textOff="@string/discluded"/>
+            android:textOff="@string/discluded"
+            android:drawableLeft="@drawable/b"/>
         <ToggleButton
             android:id="@+id/c_button_set"
             android:layout_width="match_parent"
             android:layout_height="0px"
             android:layout_weight="1"
             android:textOn="@string/included"
-            android:textOff="@string/discluded"/>
+            android:textOff="@string/discluded"
+            android:drawableLeft="@drawable/c"/>
         <ToggleButton
             android:id="@+id/d_button_set"
             android:layout_width="match_parent"
             android:layout_height="0px"
             android:layout_weight="1"
             android:textOn="@string/included"
-            android:textOff="@string/discluded"/>
+            android:textOff="@string/discluded"
+            android:drawableLeft="@drawable/d"/>
 
 
     </LinearLayout>
